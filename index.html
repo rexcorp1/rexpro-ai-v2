@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>REXPro AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              'background': 'var(--color-background)',
+              'card': 'var(--color-card)',
+              'interactive-hover': 'var(--color-interactive-hover)',
+              'border': 'var(--color-border)',
+              'text-primary': 'var(--color-text-primary)',
+              'text-secondary': 'var(--color-text-secondary)',
+              'accent': 'var(--color-accent)',
+              'accent-hover': 'var(--color-accent-hover)',
+            }
+          }
+        }
+      }
+    </script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+    <style>
+      :root {
+        /* Light Theme Palette (derived from user request) */
+        --color-background-light: #ffffff;
+        --color-card-light: #f3f4f6;
+        --color-interactive-hover-light: #e5e7eb;
+        --color-border-light: #d1d5db;
+        --color-text-primary-light: #363636;
+        --color-text-secondary-light: #6b7280;
+        --color-accent-light: #2563eb;
+        --color-accent-hover-light: #1d4ed8;
+
+        /* Dark Theme Palette (derived from user request) */
+        --color-background-dark: #1c1c1c;
+        --color-card-dark: #2a2a2a;
+        --color-interactive-hover-dark: #3c3c3c;
+        --color-border-dark: #4a4a4a;
+        --color-text-primary-dark: #e3e3e3;
+        --color-text-secondary-dark: #9ca3af;
+        --color-accent-dark: #3b82f6;
+        --color-accent-hover-dark: #2563eb;
+
+        /* Default to Light Theme */
+        --color-background: var(--color-background-light);
+        --color-card: var(--color-card-light);
+        --color-interactive-hover: var(--color-interactive-hover-light);
+        --color-border: var(--color-border-light);
+        --color-text-primary: var(--color-text-primary-light);
+        --color-text-secondary: var(--color-text-secondary-light);
+        --color-accent: var(--color-accent-light);
+        --color-accent-hover: var(--color-accent-hover-light);
+
+        /* Scrollbar variables */
+        --scrollbar-track: var(--color-background-light);
+        --scrollbar-thumb: var(--color-background-light);
+        --scrollbar-thumb-hover: #d1d5db;
+
+        /* Slider variables */
+        --slider-track-bg: var(--color-interactive-hover-light);
+        --slider-thumb-bg: var(--color-text-secondary-light);
+        --slider-progress-bg: var(--color-text-secondary-light);
+        
+        /* Focus Gradient (capra-ramp) - CONSTANT ACROSS THEMES */
+        --capra-ramp-1: #ffc400;
+        --capra-ramp-2: #ff9100;
+        --capra-ramp-3: #ff530f;
+        --capra-ramp-4: #e62c6d;
+        --capra-ramp-5: #b25aff;
+      }
+
+      .dark {
+        /* Dark Theme Overrides */
+        --color-background: var(--color-background-dark);
+        --color-card: var(--color-card-dark);
+        --color-interactive-hover: var(--color-interactive-hover-dark);
+        --color-border: var(--color-border-dark);
+        --color-text-primary: var(--color-text-primary-dark);
+        --color-text-secondary: var(--color-text-secondary-dark);
+        --color-accent: var(--color-accent-dark);
+        --color-accent-hover: var(--color-accent-hover-dark);
+        
+        /* Scrollbar dark theme */
+        --scrollbar-track: var(--color-background-dark);
+        --scrollbar-thumb: var(--color-background-dark);
+        --scrollbar-thumb-hover: #4b5563;
+
+        /* Slider dark theme */
+        --slider-track-bg: var(--color-card-dark);
+        --slider-thumb-bg: var(--color-text-secondary-dark);
+        --slider-progress-bg: var(--color-text-secondary-dark);
+      }
+
+      /* Scrollbar styles with CSS variables */
+      .hover-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+      .hover-scrollbar::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+      .hover-scrollbar::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb); border-radius: 4px; }
+      .hover-scrollbar:hover::-webkit-scrollbar-thumb { background-color: var(--scrollbar-thumb-hover); }
+      .hover-scrollbar { scrollbar-width: thin; scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track); }
+
+      /* Custom Slider Styles */
+      .custom-slider {
+          -webkit-appearance: none;
+          appearance: none;
+          width: 100%;
+          background: transparent;
+          cursor: pointer;
+      }
+      .custom-slider::-webkit-slider-runnable-track {
+          width: 100%;
+          height: 4px;
+          border-radius: 2px;
+          background: linear-gradient(to right, var(--slider-progress-bg) var(--progress, 0%), var(--slider-track-bg) var(--progress, 0%));
+      }
+      .custom-slider::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          appearance: none;
+          height: 16px;
+          width: 16px;
+          border-radius: 50%;
+          background: var(--slider-thumb-bg);
+          margin-top: -6px; /* (track height - thumb height) / 2 */
+      }
+      .custom-slider::-moz-range-track {
+          width: 100%;
+          height: 4px;
+          border-radius: 2px;
+          background: var(--slider-track-bg);
+      }
+      .custom-slider::-moz-range-progress {
+          height: 4px;
+          border-radius: 2px;
+          background: var(--slider-progress-bg);
+      }
+      .custom-slider::-moz-range-thumb {
+          height: 16px;
+          width: 16px;
+          border-radius: 50%;
+          background: var(--slider-thumb-bg);
+          border: none;
+      }
+
+      .full-height-app { height: 100vh; height: var(--app-height, 100vh); }
+      @keyframes blink { 0%, 100% { opacity: 0.2; } 20% { opacity: 1; } }
+      .dot-1 { animation: blink 1.4s infinite; animation-delay: 0s; }
+      .dot-2 { animation: blink 1.4s infinite; animation-delay: 0.2s; }
+      .dot-3 { animation: blink 1.4s infinite; animation-delay: 0.4s; }
+      .no-scrollbar::-webkit-scrollbar { display: none; }
+      .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+      @keyframes slide-up { from { transform: translateY(100%); } to { transform: translateY(0); } }
+      .animate-slide-up { animation: slide-up 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+      @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+      .animate-fade-in { animation: fade-in 0.3s ease-out; }
+      @keyframes blink-cursor { 50% { opacity: 0; } }
+      .animate-blink-cursor { animation: blink-cursor 1.2s step-end infinite; }
+      
+      /* Tooltip styles with CSS variables */
+      [data-tooltip-text] { position: relative; }
+      [data-tooltip-text]::before, [data-tooltip-text]::after { position: absolute; visibility: hidden; opacity: 0; transition: opacity 0.2s ease-in-out; z-index: 50; pointer-events: none; }
+      [data-tooltip-text]::before { content: attr(data-tooltip-text); background-color: var(--color-text-secondary); color: var(--color-background); font-size: 0.75rem; line-height: 1rem; padding: 4px 8px; border-radius: 4px; white-space: nowrap; }
+      [data-tooltip-text]::after { content: ''; border-style: solid; border-width: 5px; }
+      @media (min-width: 768px) { [data-tooltip-text]:hover::before, [data-tooltip-text]:hover::after { visibility: visible; opacity: 1; transition-delay: 0.4s; } }
+      [data-tooltip-position='top']::before { bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 7px; }
+      [data-tooltip-position='top']::after { border-color: var(--color-text-secondary) transparent transparent transparent; bottom: 100%; left: 50%; transform: translateX(-50%); margin-bottom: 2px; }
+      [data-tooltip-position='bottom']::before { top: 100%; left: 50%; transform: translateX(-50%); margin-top: 7px; }
+      [data-tooltip-position='bottom']::after { border-color: transparent transparent var(--color-text-secondary) transparent; top: 100%; left: 50%; transform: translateX(-50%); margin-top: 2px; }
+      [data-tooltip-position='right']::before { top: 50%; left: 100%; transform: translateY(-50%); margin-left: 7px; }
+      [data-tooltip-position='right']::after { border-color: transparent var(--color-text-secondary) transparent transparent; top: 50%; left: 100%; transform: translateY(-50%); margin-left: 2px; }
+      [data-tooltip-position='left']::before { top: 50%; right: 100%; transform: translateY(-50%); margin-right: 7px; }
+      [data-tooltip-position='left']::after { border-color: transparent transparent transparent var(--color-text-secondary); top: 50%; right: 100%; transform: translateY(-50%); margin-right: 2px; }
+      [data-tooltip-position='top'][data-tooltip-align='right']::before, [data-tooltip-position='bottom'][data-tooltip-align='right']::before { left: auto; right: 0; transform: translateX(0); }
+
+      .katex-display { overflow-x: auto; overflow-y: hidden; padding-bottom: 0.25rem; }
+      .markdown-body .katex { font: normal 1.21em KaTeX_Main, Times New Roman, serif; line-height: 1.2; text-indent: 0; text-rendering: auto; }
+      
+      .inline-citation {
+        display: inline-block;
+        font-size: 0.75rem;
+        font-weight: 600;
+        line-height: 1;
+        padding: 0.25rem 0.6rem;
+        border-radius: 0.5rem;
+        background-color: var(--color-interactive-hover);
+        color: var(--color-text-primary);
+        vertical-align: baseline;
+        margin: 0 0.125rem;
+        position: relative;
+        cursor: pointer;
+        transition: background-color 0.2s;
+      }
+      .inline-citation:hover {
+        background-color: var(--color-border);
+      }
+      .citation-popover {
+        display: none;
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 0.5rem;
+        width: 24rem;
+        max-height: 20rem;
+        overflow-y: auto;
+        padding: 0.75rem;
+        background-color: var(--color-background);
+        border: 1px solid var(--color-border);
+        border-radius: 0.5rem;
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+        z-index: 20;
+        font-size: 0.875rem;
+        font-weight: normal;
+        text-align: left;
+        color: var(--color-text-primary);
+      }
+      .inline-citation:hover .citation-popover {
+        display: block;
+      }
+      .dark .citation-popover {
+        box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.4), 0 2px 4px -2px rgb(0 0 0 / 0.3);
+      }
+      
+      /* New styles for Chat Input with Animated Border Focus */
+      .chat-input-container {
+          --border-radius: 0.5rem; /* Matches Tailwind's rounded-lg */
+          --border-thickness: 1px;
+          position: relative;
+          border-radius: var(--border-radius);
+      }
+      .chat-input-container::after {
+          content: "";
+          position: absolute;
+          pointer-events: none;
+          inset: calc(-1 * var(--border-thickness));
+          border-radius: calc(var(--border-radius) + var(--border-thickness));
+          background: linear-gradient(
+              -45deg,
+              var(--capra-ramp-5) 0%,
+              var(--capra-ramp-4) 8%,
+              var(--capra-ramp-3) 17%,
+              var(--capra-ramp-2) 25%,
+              var(--capra-ramp-1) 33%,
+              var(--color-border) 40%, 
+              var(--color-border) 100%
+          );
+          background-size: 300% 300%;
+          background-position: 0% 0%;
+          transition: background-position 0.5s ease;
+          transition-delay: .1s;
+          z-index: 0;
+      }
+      .chat-input-container:focus-within::after {
+          background-position: 100% 100%;
+          transition-delay: 0s;
+      }
+      .chat-input-inner {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          flex-direction: column;
+          background-color: var(--color-background);
+          border-radius: var(--border-radius);
+          overflow: hidden;
+      }
+      .chat-textarea {
+          background: transparent; border: none; outline: none;
+          overflow-y: auto; color: var(--color-text-primary);
+          font-size: 0.875rem; line-height: 1.25rem;
+          flex: 1 0 auto; resize: none;
+          caret-color: var(--color-accent);
+          width: 100%; max-height: 200px; padding: 1rem;
+      }
+      .chat-textarea::placeholder { color: var(--color-text-secondary); }
+      .chat-textarea-with-files { padding: 0.5rem 1rem 1rem; }
+      .chat-actions {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0 1rem 0.75rem;
+          background: transparent;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react/": "https://aistudiocdn.com/react@^19.1.1/",
+    "react": "https://aistudiocdn.com/react@^19.1.1",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.17.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.1.1/",
+    "react-markdown": "https://aistudiocdn.com/react-markdown@^10.1.0",
+    "remark-gfm": "https://aistudiocdn.com/remark-gfm@^4.0.1",
+    "zustand/": "https://aistudiocdn.com/zustand@^5.0.8/",
+    "zustand": "https://aistudiocdn.com/zustand@^5.0.8",
+    "lucide-react": "https://aistudiocdn.com/lucide-react@^0.542.0",
+    "@monaco-editor/react": "https://aistudiocdn.com/@monaco-editor/react@^4.7.0",
+    "remark-math": "https://aistudiocdn.com/remark-math@^6.0.0",
+    "react-syntax-highlighter/": "https://aistudiocdn.com/react-syntax-highlighter@^15.6.6/",
+    "react-syntax-highlighter": "https://aistudiocdn.com/react-syntax-highlighter@^15.6.6",
+    "rehype-katex": "https://aistudiocdn.com/rehype-katex@^7.0.1",
+    "uuid": "https://aistudiocdn.com/uuid@^12.0.0"
+  }
+}
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.5.136/pdf.min.mjs" type="module"></script>
+<link rel="stylesheet" href="/index.css">
+</head>
+  <body class="bg-background text-text-primary">
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
