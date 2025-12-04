@@ -1,5 +1,15 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from '@/components/ui/alert-dialog';
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -9,57 +19,44 @@ interface ConfirmationModalProps {
   children: React.ReactNode;
 }
 
-export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({ isOpen, onClose, onConfirm, title, children }) => {
-  if (!isOpen) return null;
-
+export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  title,
+  children,
+}) => {
   const handleConfirm = () => {
     onConfirm();
     onClose();
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-black bg-opacity-60 z-50 flex justify-center items-center p-4"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-      aria-labelledby="confirmation-modal-title"
-    >
-      <div className="bg-background rounded-lg shadow-xl w-full max-w-md flex flex-col" onClick={e => e.stopPropagation()}>
-        <div className="p-6">
-          <div className="sm:flex sm:items-start">
-            <div className="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900/30 sm:mx-0 sm:h-10 sm:w-10">
-              <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" aria-hidden="true" />
+    <AlertDialog open={isOpen} onOpenChange={onClose}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <div className="flex items-start gap-4">
+            <div className="flex-shrink-0 flex items-center justify-center h-10 w-10 rounded-full bg-destructive/10">
+              <AlertTriangle className="h-6 w-6 text-destructive" aria-hidden="true" />
             </div>
-            <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
-              <h3 id="confirmation-modal-title" className="text-lg font-medium leading-6 text-text-primary">
-                {title}
-              </h3>
-              <div className="mt-2">
-                <p className="text-sm text-text-secondary">
-                  {children}
-                </p>
-              </div>
+            <div className="flex-1">
+              <AlertDialogTitle>{title}</AlertDialogTitle>
+              <AlertDialogDescription className="mt-2">
+                {children}
+              </AlertDialogDescription>
             </div>
           </div>
-        </div>
-        <div className="flex justify-end p-4 border-t border-border bg-card/50 rounded-b-lg space-x-2">
-          <button
-            type="button"
-            onClick={onClose}
-            className="px-4 py-2 text-sm font-medium text-text-primary bg-background border border-border rounded-lg hover:bg-interactive-hover focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-accent"
-          >
-            Cancel
-          </button>
-          <button
-            type="button"
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={handleConfirm}
-            className="inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+            className="bg-destructive hover:bg-destructive/90"
           >
             Delete
-          </button>
-        </div>
-      </div>
-    </div>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 };

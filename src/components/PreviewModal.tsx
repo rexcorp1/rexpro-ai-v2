@@ -1,8 +1,19 @@
-
-
 import React, { useEffect, useMemo, useState } from 'react';
-import { X, Download, Printer } from 'lucide-react';
+import { Download, Printer } from 'lucide-react';
 import { Attachment } from '../types';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 interface PreviewModalProps {
   isOpen: boolean;
@@ -70,79 +81,117 @@ export const PreviewModal: React.FC<PreviewModalProps> = ({ isOpen, file, onClos
   }, [file]);
 
 
-  if (!isOpen || !file) return null;
-
   const renderContent = () => {
     if (file.mimeType.startsWith('image/')) {
-      return <img src={file.dataUrl} alt={file.name} className="max-w-full max-h-full object-contain" />;
+      return (
+        <img
+          src={file.dataUrl}
+          alt={file.name}
+          className="max-w-full max-h-full object-contain"
+        />
+      );
     }
     if (file.mimeType.startsWith('video/')) {
-      return <video src={file.dataUrl} controls autoPlay className="max-w-full max-h-full" />;
+      return (
+        <video
+          src={file.dataUrl}
+          controls
+          autoPlay
+          className="max-w-full max-h-full"
+        />
+      );
     }
     if (file.mimeType === 'application/pdf') {
-      return <iframe src={objectUrl || ''} title={file.name} className="w-full h-full border-none" />;
+      return (
+        <iframe
+          src={objectUrl || ''}
+          title={file.name}
+          className="w-full h-full border-none"
+        />
+      );
     }
-     if (decodedTextContent) {
-      return <pre className="w-full h-full bg-card text-text-primary p-4 rounded-lg overflow-auto text-sm whitespace-pre-wrap">{decodedTextContent}</pre>;
+    if (decodedTextContent) {
+      return (
+        <pre className="w-full h-full bg-secondary p-4 rounded-lg overflow-auto text-sm whitespace-pre-wrap">
+          {decodedTextContent}
+        </pre>
+      );
     }
-    return <div className="text-center text-text-secondary">Preview not available for this file type.</div>;
+    return (
+      <div className="text-center text-muted-foreground">
+        Preview not available for this file type.
+      </div>
+    );
   };
 
   const handlePrint = () => {
-     if (file.mimeType === 'application/pdf' && objectUrl) {
-        const iframe = document.createElement('iframe');
-        iframe.style.display = 'none';
-        iframe.src = objectUrl;
-        document.body.appendChild(iframe);
-        iframe.onload = () => {
-            iframe.contentWindow?.focus();
-            iframe.contentWindow?.print();
-            // Optional: remove iframe after a delay
-            setTimeout(() => document.body.removeChild(iframe), 1000);
-        };
-     } else if (file.mimeType.startsWith('image/')) {
-        const printWindow = window.open('', '_blank');
-        printWindow?.document.write(`<html><head><title>Print</title></head><body style="margin:0;"><img src="${file.dataUrl}" style="max-width:100%;"></body></html>`);
-        printWindow?.document.close();
-        printWindow?.focus();
-        printWindow?.print();
-        printWindow?.close();
-     } else {
-        alert('Print is only supported for PDF and image files currently.');
-     }
+    if (file.mimeType === 'application/pdf' && objectUrl) {
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = objectUrl;
+      document.body.appendChild(iframe);
+      iframe.onload = () => {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        setTimeout(() => document.body.removeChild(iframe), 1000);
+      };
+    } else if (file.mimeType.startsWith('image/')) {
+      const printWindow = window.open('', '_blank');
+      printWindow?.document.write(
+        `<html><head><title>Print</title></head><body style="margin:0;"><img src="${file.dataUrl}" style="max-width:100%;"></body></html>`
+      );
+      printWindow?.document.close();
+      printWindow?.focus();
+      printWindow?.print();
+      printWindow?.close();
+    } else {
+      alert('Print is only supported for PDF and image files currently.');
+    }
   };
 
   return (
-    <div
-      className="fixed inset-0 bg-background/50 backdrop-blur-sm z-50 flex justify-center items-center p-4 animate-fade-in"
-      onClick={onClose}
-      role="dialog"
-      aria-modal="true"
-    >
-      <div
-        className="bg-background rounded-lg shadow-xl w-full max-w-6xl h-[85vh] flex flex-col"
-        onClick={e => e.stopPropagation()}
-      >
-        <header className="flex justify-between items-center p-3 flex-shrink-0">
-          <h2 className="text-lg font-medium text-text-primary truncate pr-4" title={file.name}>
-            {file.name}
-          </h2>
-          <div className="flex items-center gap-2">
-             <button onClick={handlePrint} className="p-2 text-text-secondary hover:bg-interactive-hover rounded-lg" data-tooltip-text="Print" data-tooltip-position="bottom">
-                <Printer className="h-5 w-5" />
-            </button>
-            <a href={file.dataUrl} download={file.name} className="p-2 text-text-secondary hover:bg-interactive-hover rounded-lg" data-tooltip-text="Download" data-tooltip-position="bottom">
-              <Download className="h-5 w-5" />
-            </a>
-            <button onClick={onClose} className="p-2 text-text-secondary hover:bg-interactive-hover rounded-lg" aria-label="Close modal">
-              <X className="h-5 w-5" />
-            </button>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="max-w-6xl h-[85vh] flex flex-col p-0">
+        <DialogHeader className="border-b p-4 flex-shrink-0">
+          <div className="flex items-center justify-between gap-4">
+            <DialogTitle className="truncate">{file.name}</DialogTitle>
+            <TooltipProvider>
+              <div className="flex items-center gap-1">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handlePrint}
+                    >
+                      <Printer className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Print</TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      asChild
+                    >
+                      <a href={file.dataUrl} download={file.name}>
+                        <Download className="h-4 w-4" />
+                      </a>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>Download</TooltipContent>
+                </Tooltip>
+              </div>
+            </TooltipProvider>
           </div>
-        </header>
-        <main className="p-4 flex-1 flex justify-center items-center bg-card/50 min-h-0 rounded-b-lg">
+        </DialogHeader>
+        <div className="flex-1 flex justify-center items-center bg-secondary/50 overflow-hidden">
           {renderContent()}
-        </main>
-      </div>
-    </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 };
